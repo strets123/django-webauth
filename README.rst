@@ -54,7 +54,16 @@ The following configuration assumes that the apache mod_proxy is loaded as well 
       AuthType WebAuth
       require valid-user
       RequestHeader set "X-WEBAUTH-USER" "%{WEBAUTH_USER}e"
-    </location>
+RequestHeader unset X-Forwarded-Proto
+
+# set the header for requests using HTTPS
+RequestHeader set X-Forwarded-Proto https env=HTTPS
+</location>
+
+RequestHeader unset X-Forwarded-Proto
+
+# set the header for requests using HTTPS
+RequestHeader set X-Forwarded-Proto https env=HTTPS
 
 
     <Directory /path/to/my/site/static>
@@ -68,6 +77,9 @@ The following configuration assumes that the apache mod_proxy is loaded as well 
 
 
 As the request header has come from Apache it is prepended with HTTP_ by the time it gets to django hence the get statement in views.py.
+We must also allow proxying of HTTP requests in the django settings file:
+
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 LDAP configuration
