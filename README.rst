@@ -41,6 +41,8 @@ The following configuration assumes that the apache mod_proxy is loaded as well 
 
     <VirtualHost *:443>
 
+    #Add standard site and SSL config here
+
         ProxyPass / http://localhost:8080/
         ProxyPassReverse / http://localhost:8080/
         ProxyPass /static !
