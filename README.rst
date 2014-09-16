@@ -32,6 +32,39 @@ Follow the `OUCS documentation
 the Webauth login view. You may also wish to use the ``WebauthDoLogout``
 directive for the logout view.
 
+If you wish to run django in a light wsgi container such as uwsgi, gunicorn etc. It is possible to pass the webauth username to the local proxy server by setting an environmental variable in apache.
+
+The following configuration assumes that the apache mod_proxy is loaded as well as mod_webauth and is placed inside the virtualhost configuration. All directly served URLs such as static must be ignoged by using the syntax shown below
+
+<VirtualHost *:443>
+
+    ProxyPass / http://localhost:8080/
+    ProxyPassReverse / http://localhost:8080/
+    ProxyPass /static !
+    Alias /static /var/www/chembiohub/chembiohubhome/chembiohub/static
+
+
+    <Location />
+      WebAuthExtraRedirect on
+      AuthType WebAuth
+      require valid-user
+      RequestHeader set "X-WEBAUTH-USER" "%{WEBAUTH_USER}e"
+    </location>
+
+
+  <Directory /path/to/my/site/static>
+Options Indexes FollowSymLinks Includes
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+
+</Directory>
+</VirtualHost>
+
+
+As the request header has come from Apache it is prepended with HTTP_ by the time it gets to django hence the get statement in views.py.
+
+
 LDAP configuration
 ~~~~~~~~~~~~~~~~~~
 
