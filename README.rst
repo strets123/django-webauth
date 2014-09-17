@@ -54,16 +54,16 @@ The following configuration assumes that the apache mod_proxy is loaded as well 
       AuthType WebAuth
       require valid-user
       RequestHeader set "X-WEBAUTH-USER" "%{WEBAUTH_USER}e"
-RequestHeader unset X-Forwarded-Proto
+      RequestHeader unset X-Forwarded-Proto
 
-# set the header for requests using HTTPS
-RequestHeader set X-Forwarded-Proto https env=HTTPS
-</location>
+      # set the header for requests using HTTPS
+      RequestHeader set X-Forwarded-Proto https env=HTTPS
+    </location>
 
-RequestHeader unset X-Forwarded-Proto
+    RequestHeader unset X-Forwarded-Proto
 
-# set the header for requests using HTTPS
-RequestHeader set X-Forwarded-Proto https env=HTTPS
+    # set the header for requests using HTTPS
+    RequestHeader set X-Forwarded-Proto https env=HTTPS
 
 
     <Directory /path/to/my/site/static>
