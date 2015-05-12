@@ -16,9 +16,6 @@ class WebauthLDAP(object):
                 'ldap://ldap.oak.ox.ac.uk:389')
 
     def authenticate(self, username):
-        user, created = User.objects.get_or_create(username=username)
-        if created:
-            user.set_unusable_password()
         auth = ldap.sasl.gssapi('')
         oakldap = ldap.initialize(self.ldap_endpoint)
         oakldap.start_tls_s()
@@ -28,18 +25,22 @@ class WebauthLDAP(object):
                                    ldap.SCOPE_SUBTREE,
                                    '(oakPrincipal=krbPrincipalName=%s@OX.AC.UK,cn=OX.AC.UK,cn=KerberosRealms,dc=oak,dc=ox,dc=ac,dc=uk)' % username)
 
+        
+
         if not results:
             return None
         person = results[0][1]
-
+        defaults = {}
         for name, key in (('first_name', 'givenName'),
                           ('last_name', 'sn'),
                           ('email', 'mail')):
             try:
-                setattr(user, name, person[key][0])
+                defaults[name] = person[key][0]
             except KeyError, e:
-                setattr(user, name, '')
+                defaults[name] = ''
                 logger.warning("User %s doesn't have a %s", username, key)
+        user, _ = User.objects.get_or_create(username=username, defaults=defaults)
+        user.set_unusable_password()
 
         user.groups = self.get_groups(user, person)
 
